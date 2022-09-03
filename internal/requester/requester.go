@@ -16,7 +16,7 @@ var client = http.Client{
 var settings util.Config
 
 func init() {
-	config, err := util.LoadConfig(".")
+	config, err := util.LoadConfig()
 	if err != nil {
 		panic("Error reading the config")
 	}

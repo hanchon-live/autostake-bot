@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/hanchon-live/autostake-bot/internal/wallet"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/cobra"
 )
@@ -48,6 +49,8 @@ var listGrantersCmd = &cobra.Command{
 		if err != nil {
 			fmt.Printf("Row error: %q", err)
 		}
+
+		_, _, _ = wallet.GetWallet()
 
 	},
 }
