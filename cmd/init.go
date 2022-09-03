@@ -29,7 +29,7 @@ var initCmd = &cobra.Command{
 	create table if not exists delegators (
         id integer not null primary key,
         name text,
-        address text,
+        address text unique,
         isvalidator bool,
         validator text,
         maxamount text
