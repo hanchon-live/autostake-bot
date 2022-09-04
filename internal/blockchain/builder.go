@@ -6,9 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/hanchon-live/autostake-bot/internal/wallet"
 
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
@@ -16,7 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	ethermintcodec "github.com/evmos/ethermint/crypto/codec"
 )
 
 type Sender struct {
@@ -40,13 +37,6 @@ func ByteArrayToStringArray(value []byte) string {
 
 func Uint64ToCoins(value int64, denom string) sdk.Coins {
 	return sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(value)))
-}
-func CreateEnconder() *codec.ProtoCodec {
-	reg := codectypes.NewInterfaceRegistry()
-	bank.RegisterInterfaces(reg)
-	ethermintcodec.RegisterInterfaces(reg)
-	enconder := codec.NewProtoCodec(reg)
-	return enconder
 }
 
 func CreatePrivateKeyFromMnemonic(mnemonic string) (ethsecp256k1.PrivKey, error) {

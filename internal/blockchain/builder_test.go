@@ -4,6 +4,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"testing"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	ethermintcodec "github.com/evmos/ethermint/crypto/codec"
 )
 
 func TestCreateTransaction(t *testing.T) {
@@ -29,9 +33,14 @@ func TestCreateTransaction(t *testing.T) {
 
 	msgSend := bank.NewMsgSend(from, to, sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000000))))
 
+	reg := codectypes.NewInterfaceRegistry()
+	bank.RegisterInterfaces(reg)
+	ethermintcodec.RegisterInterfaces(reg)
+	enconder := codec.NewProtoCodec(reg)
+
 	message := Message{
 		Msg:      msgSend,
-		Enconder: *CreateEnconder(),
+		Enconder: *enconder,
 		Fee:      sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(100000000))),
 		GasLimit: uint64(150000),
 		Memo:     "Hanchon restake",
