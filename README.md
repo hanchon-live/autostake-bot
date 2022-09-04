@@ -35,3 +35,5 @@ evmosd tx authz grant evmos10gu0eudskw7nc0ef48ce9x22sx3tft0s463el3 generic --msg
 
 - Remove grantee from the list if grant revoked
 - More tests, right now the only thing tested is the transaction generator
+- Allow more than 21 granters
+- Validate if the grant is limited to a validator or by amount

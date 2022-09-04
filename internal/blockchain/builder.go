@@ -1,6 +1,9 @@
 package blockchain
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -31,6 +34,13 @@ type Message struct {
 	ChainId  string
 }
 
+func ByteArrayToStringArray(value []byte) string {
+	return strings.Join(strings.Fields(fmt.Sprintf("%d", value)), ",")
+}
+
+func Uint64ToCoins(value int64, denom string) sdk.Coins {
+	return sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(value)))
+}
 func CreateEnconder() *codec.ProtoCodec {
 	reg := codectypes.NewInterfaceRegistry()
 	bank.RegisterInterfaces(reg)
@@ -55,6 +65,15 @@ func CreatePrivateKeyFromMnemonic(mnemonic string) (ethsecp256k1.PrivKey, error)
 	}
 
 	return priv, nil
+}
+
+func HexToBech32(address string) (string, error) {
+	sdk.GetConfig().SetBech32PrefixForAccount("evmos", "evmospub")
+	if temp, err := sdk.AccAddressFromHexUnsafe(address); err != nil {
+		return "", err
+	} else {
+		return temp.String(), nil
+	}
 }
 
 func Bech32StringToAddress(address string) (sdk.AccAddress, error) {
@@ -98,8 +117,8 @@ func CreateTransaction(sender Sender, message Message) ([]byte, error) {
 		Data:     &sigData,
 		Sequence: sender.Sequence,
 	}
-	sigs := []signing.SignatureV2{sig}
 
+	sigs := []signing.SignatureV2{sig}
 	if err := txBuilder.SetSignatures(sigs...); err != nil {
 		return []byte{}, err
 	}
@@ -126,6 +145,10 @@ func CreateTransaction(sender Sender, message Message) ([]byte, error) {
 		Sequence: sender.Sequence,
 	}
 	txBuilder.SetSignatures(sig)
+
+	// TODO: remove this
+	a, _ := clientCtx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
+	fmt.Println(string(a))
 
 	txBz, err := clientCtx.TxConfig.TxEncoder()(txBuilder.GetTx())
 	if err != nil {
