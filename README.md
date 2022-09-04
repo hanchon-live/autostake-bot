@@ -16,3 +16,7 @@ go build
 ```sh
 evmosd tx authz grant evmos10gu0eudskw7nc0ef48ce9x22sx3tft0s463el3 generic --msg-type /cosmos.staking.v1beta1.MsgDelegate --chain-id evmos_9000-1 --node http://localhost:26657 --from mykey --keyring-backend test --gas auto --gas-prices 25000000000.0000aevmos --gas-adjustment 1.5
 ```
+
+## TODO:
+
+- Remove grantee from the list if grant revoked
