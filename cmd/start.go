@@ -6,7 +6,6 @@ package cmd
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/hanchon-live/autostake-bot/internal/blockchain"
 	"github.com/hanchon-live/autostake-bot/internal/util"
@@ -28,41 +27,8 @@ var startCmd = &cobra.Command{
 It will query the balance for each granter and if it's greater than 0.1 Evmos,
 it will claim and restake the total amount`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Get the private key using the mnemonic in the .env file
-		// NOTE: it will use the first wallet, the path is hardcoded
-		priv, err := blockchain.CreatePrivateKeyFromMnemonic(settings.Mnemonic)
-		if err != nil {
-			fmt.Printf("Error creating priv: %q\n", err)
-			return
-		}
-
-		address, err := blockchain.HexToBech32(priv.PubKey().Address().String())
-		if err != nil {
-			fmt.Printf("Error getting the address: %q\n", err)
-			return
-		}
-
-		fmt.Printf("Using the address: %s\n", address)
-
-		// Query the account info to the blockchain
-		response, err := blockchain.GetAccountFromBlockchain(address)
-		if err != nil {
-			fmt.Printf("Error getting account data from the blockchain: %q\n", err)
-			return
-		}
-		sequence, err := strconv.ParseInt(response.Account.BaseAccount.Sequence, 10, 64)
-		accountNumber, err2 := strconv.ParseInt(response.Account.BaseAccount.AccountNumber, 10, 64)
-		if err != nil || err2 != nil {
-			fmt.Println("Error parsing the sequence or account number")
-			return
-		}
-
-		// Create the sender
-		sender := blockchain.Sender{
-			Sequence:      uint64(sequence),
-			AccountNumber: uint64(accountNumber),
-			PrivKey:       priv,
-		}
+		// Get the sender using the mnemonic in the .env file
+		sender, err := blockchain.GetSender(settings.Mnemonic)
 
 		// Create the proto message
 		from, err := blockchain.Bech32StringToAddress("evmos10gu0eudskw7nc0ef48ce9x22sx3tft0s463el3")
@@ -94,6 +60,9 @@ it will claim and restake the total amount`,
 		}
 
 		tx, err := blockchain.CreateTransaction(sender, message)
+		if err != nil {
+			fmt.Printf("Error creating transaction: %q\n", err)
+		}
 
 		// Broadcast the transaction
 		txHash, err := blockchain.Broadcast(tx)

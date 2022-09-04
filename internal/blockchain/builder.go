@@ -16,12 +16,6 @@ import (
 	authTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
-type Sender struct {
-	Sequence      uint64
-	AccountNumber uint64
-	PrivKey       ethsecp256k1.PrivKey
-}
-
 type Message struct {
 	Msg      sdk.Msg
 	Enconder codec.ProtoCodec
