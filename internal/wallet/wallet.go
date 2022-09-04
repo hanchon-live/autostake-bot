@@ -13,13 +13,13 @@ var settings util.Config
 func init() {
 	config, err := util.LoadConfig()
 	if err != nil {
-		panic("Error reading the config")
+		fmt.Println("Error reading the config, using localnet values!")
 	}
 	settings = config
 }
 
-func GetWallet() (hdwallet.Wallet, accounts.Account, error) {
-	wallet, err := hdwallet.NewFromMnemonic(settings.Mnemonic)
+func GetWalletFromMnemonic(mnemonic string) (hdwallet.Wallet, accounts.Account, error) {
+	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
 	if err != nil {
 		return hdwallet.Wallet{}, accounts.Account{}, err
 	}
@@ -30,6 +30,9 @@ func GetWallet() (hdwallet.Wallet, accounts.Account, error) {
 		return hdwallet.Wallet{}, accounts.Account{}, err
 	}
 
-	fmt.Println(account.Address.String())
 	return *wallet, account, nil
+}
+
+func GetWallet() (hdwallet.Wallet, accounts.Account, error) {
+	return GetWalletFromMnemonic(settings.Mnemonic)
 }

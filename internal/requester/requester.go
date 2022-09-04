@@ -1,16 +1,18 @@
 package requester
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/hanchon-live/autostake-bot/internal/util"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/hanchon-live/autostake-bot/internal/util"
 )
 
 var client = http.Client{
-	Timeout: 2 * time.Second,
+	Timeout: 10 * time.Second,
 }
 
 var settings util.Config
@@ -18,7 +20,7 @@ var settings util.Config
 func init() {
 	config, err := util.LoadConfig()
 	if err != nil {
-		panic("Error reading the config")
+		fmt.Println("Error reading the config, using localnet values!")
 	}
 	settings = config
 }
@@ -42,7 +44,14 @@ func MakeGetRequest(endpointType string, url string) (string, error) {
 
 		resp, err := client.Get(sb.String())
 
-		if err != nil || resp.StatusCode == 429 {
+		if err != nil {
+			continue
+		}
+		if resp.StatusCode == 404 {
+			return "", fmt.Errorf("Element not found")
+		}
+
+		if resp.StatusCode != 200 {
 			continue
 		}
 
@@ -55,6 +64,45 @@ func MakeGetRequest(endpointType string, url string) (string, error) {
 		}
 
 		return string(body), nil
+	}
+
+	return "", fmt.Errorf("All endpoints are down")
+}
+
+func MakePostRequest(endpointType string, url string, param []byte) (string, error) {
+	body := bytes.NewBuffer(param)
+
+	var endpoints []string
+	if endpointType == "rest" {
+		endpoints = settings.Rest
+	} else if endpointType == "jrpc" {
+		endpoints = settings.Jrpc
+	} else if endpointType == "web3" {
+		endpoints = settings.Web3
+	} else {
+		return "", fmt.Errorf("Invalid endpoint type")
+	}
+
+	for _, endpoint := range endpoints {
+		var sb strings.Builder
+		sb.WriteString(endpoint)
+		sb.WriteString(url)
+
+		resp, err := client.Post(sb.String(), "application/json", body)
+
+		if err != nil || resp.StatusCode == 429 {
+			continue
+		}
+
+		defer resp.Body.Close()
+
+		bodyResponse, err := ioutil.ReadAll(resp.Body)
+
+		if err != nil || len(string(bodyResponse)) == 0 {
+			continue
+		}
+
+		return string(bodyResponse), nil
 	}
 
 	return "", fmt.Errorf("All endpoints are down")
