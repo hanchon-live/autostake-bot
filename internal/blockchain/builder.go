@@ -18,7 +18,7 @@ import (
 
 type Message struct {
 	Msg      sdk.Msg
-	Enconder codec.ProtoCodec
+	Encoder  codec.ProtoCodec
 	Fee      sdk.Coins
 	GasLimit uint64
 	Memo     string
@@ -29,7 +29,7 @@ func ByteArrayToStringArray(value []byte) string {
 	return strings.Join(strings.Fields(fmt.Sprintf("%d", value)), ",")
 }
 
-func Uint64ToCoins(value int64, denom string) sdk.Coins {
+func Int64ToCoins(value int64, denom string) sdk.Coins {
 	return sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(value)))
 }
 
@@ -71,9 +71,9 @@ func CreateTransaction(sender Sender, message Message) ([]byte, error) {
 	clientCtx := client.Context{}.
 		WithHomeDir("./").
 		WithViper("").
-		WithCodec(&message.Enconder).
+		WithCodec(&message.Encoder).
 		WithChainID(message.ChainId).
-		WithTxConfig(authTx.NewTxConfig(&message.Enconder, []signing.SignMode{signing.SignMode_SIGN_MODE_DIRECT}))
+		WithTxConfig(authTx.NewTxConfig(&message.Encoder, []signing.SignMode{signing.SignMode_SIGN_MODE_DIRECT}))
 
 	txBuilder := clientCtx.TxConfig.NewTxBuilder()
 	if err := txBuilder.SetMsgs(message.Msg); err != nil {

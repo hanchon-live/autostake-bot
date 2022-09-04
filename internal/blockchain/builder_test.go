@@ -36,11 +36,11 @@ func TestCreateTransaction(t *testing.T) {
 	reg := codectypes.NewInterfaceRegistry()
 	bank.RegisterInterfaces(reg)
 	ethermintcodec.RegisterInterfaces(reg)
-	enconder := codec.NewProtoCodec(reg)
+	encoder := codec.NewProtoCodec(reg)
 
 	message := Message{
 		Msg:      msgSend,
-		Enconder: *enconder,
+		Encoder:  *encoder,
 		Fee:      sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(100000000))),
 		GasLimit: uint64(150000),
 		Memo:     "Hanchon restake",

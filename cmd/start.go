@@ -8,13 +8,9 @@ import (
 	"fmt"
 
 	"github.com/hanchon-live/autostake-bot/internal/blockchain"
+	"github.com/hanchon-live/autostake-bot/internal/messages"
 	"github.com/hanchon-live/autostake-bot/internal/util"
 	"github.com/spf13/cobra"
-
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
-	ethermintcodec "github.com/evmos/ethermint/crypto/codec"
 )
 
 var settings util.Config
@@ -31,33 +27,28 @@ it will claim and restake the total amount`,
 		sender, err := blockchain.GetSender(settings.Mnemonic)
 
 		// Create the proto message
-		from, err := blockchain.Bech32StringToAddress("evmos10gu0eudskw7nc0ef48ce9x22sx3tft0s463el3")
+		msgSend, encoder, err := messages.CreateMessageSend(
+			"evmos10gu0eudskw7nc0ef48ce9x22sx3tft0s463el3",
+			"evmos1urc5gn9x4kvl3sxu4qd9vckfdmtet7shdskm55",
+			int64(42069),
+			settings.FeeDenom,
+		)
+
 		if err != nil {
-			fmt.Printf("Error creating from address: %q\n", err)
+			fmt.Printf("Error creating message send: %q\n", err)
 			return
 		}
-		to, err := blockchain.Bech32StringToAddress("evmos1urc5gn9x4kvl3sxu4qd9vckfdmtet7shdskm55")
-		if err != nil {
-			fmt.Printf("Error creating to address: %q\n", err)
-		}
 
-		msgSend := bank.NewMsgSend(from, to, blockchain.Uint64ToCoins(int64(42069), settings.FeeDenom))
-
-		// Create the Enconder
-		reg := codectypes.NewInterfaceRegistry()
-		bank.RegisterInterfaces(reg)
-		ethermintcodec.RegisterInterfaces(reg)
-		enconder := codec.NewProtoCodec(reg)
-
-		// Create the message
-		message := blockchain.Message{
-			Msg:      msgSend,
-			Enconder: *enconder,
-			Fee:      blockchain.Uint64ToCoins(settings.Fee, settings.FeeDenom),
-			GasLimit: settings.GasLimit,
-			Memo:     settings.Memo,
-			ChainId:  settings.ChainId,
-		}
+		// Enconde new message
+		message := messages.NewMessage(
+			&msgSend,
+			encoder,
+			settings.Fee,
+			settings.FeeDenom,
+			settings.GasLimit,
+			settings.Memo,
+			settings.ChainId,
+		)
 
 		tx, err := blockchain.CreateTransaction(sender, message)
 		if err != nil {
