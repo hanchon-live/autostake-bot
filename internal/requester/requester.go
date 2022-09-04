@@ -18,7 +18,7 @@ var settings util.Config
 func init() {
 	config, err := util.LoadConfig()
 	if err != nil {
-		panic("Error reading the config")
+		fmt.Println("Error reading the config, using localnet values!")
 	}
 	settings = config
 }
