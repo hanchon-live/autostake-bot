@@ -5,14 +5,11 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 
 	"github.com/hanchon-live/autostake-bot/internal/blockchain"
-	"github.com/hanchon-live/autostake-bot/internal/requester"
 	"github.com/hanchon-live/autostake-bot/internal/util"
-	"github.com/hanchon-live/autostake-bot/types/responses"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -99,24 +96,11 @@ it will claim and restake the total amount`,
 		tx, err := blockchain.CreateTransaction(sender, message)
 
 		// Broadcast the transaction
-		body := `{"tx_bytes":` + blockchain.ByteArrayToStringArray(tx) + `,"mode":"BROADCAST_MODE_BLOCK"}`
-		val, err := requester.MakePostRequest("rest", "/cosmos/tx/v1beta1/txs", []byte(body))
+		txHash, err := blockchain.Broadcast(tx)
 		if err != nil {
-			fmt.Println("Error sending transaction")
-			return
-		}
-
-		m := &responses.BroadcastTxResponse{}
-		err = json.Unmarshal([]byte(val), m)
-		if err != nil {
-			fmt.Printf("Error reading the transaction response: %q\n", err)
-			return
-		}
-
-		if m.Response.Code == 0 {
-			fmt.Printf("Transaction succesfully included in a block: %q\n", m.Response.TxHash)
+			fmt.Printf("Error broadcasting... %q\n", err)
 		} else {
-			fmt.Println("Error sending the transaction")
+			fmt.Printf("Transaction included in a block with hash %q\n", txHash)
 		}
 
 	},

@@ -22,3 +22,22 @@ func GetAccountFromBlockchain(address string) (responses.AuthAddressResponse, er
 		return *m, nil
 	}
 }
+
+func Broadcast(tx []byte) (string, error) {
+	body := `{"tx_bytes":` + ByteArrayToStringArray(tx) + `,"mode":"BROADCAST_MODE_BLOCK"}`
+	val, err := requester.MakePostRequest("rest", "/cosmos/tx/v1beta1/txs", []byte(body))
+	if err != nil {
+		return "", fmt.Errorf("Error sending transaction: %q\n", err)
+	}
+
+	m := &responses.BroadcastTxResponse{}
+	err = json.Unmarshal([]byte(val), m)
+	if err != nil {
+		return "", fmt.Errorf("Error reading the transaction response: %q", err)
+	}
+
+	if m.Response.Code == 0 {
+		return m.Response.TxHash, nil
+	}
+	return "", fmt.Errorf("Error sending the transaction error code: %d", m.Response.Code)
+}
