@@ -4,8 +4,6 @@ import "github.com/spf13/viper"
 
 type Config struct {
 	Rest           []string `mapstructure:"rest"`
-	Jrpc           []string `mapstructure:"jrpc"`
-	Web3           []string `mapstructure:"web3"`
 	Mnemonic       string   `mapstructure:"mnemonic"`
 	DerivationPath string   `mapstructure:"derivationpath"`
 	Fee            int64    `mapstructure:"fee"`
@@ -19,8 +17,6 @@ type Config struct {
 
 var defaultConfig = Config{
 	Rest:           []string{"http://127.0.0.1:1317"},
-	Jrpc:           []string{"http://127.0.0.1:26657"},
-	Web3:           []string{"http://127.0.0.1:8545"},
 	Mnemonic:       "flash local taste power maple fragile pool name file position drop swarm",
 	DerivationPath: "m/44'/60'/0'/0/0",
 	Fee:            int64(100000000),

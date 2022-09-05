@@ -29,10 +29,6 @@ func MakeGetRequest(endpointType string, url string) (string, error) {
 	var endpoints []string
 	if endpointType == "rest" {
 		endpoints = settings.Rest
-	} else if endpointType == "jrpc" {
-		endpoints = settings.Jrpc
-	} else if endpointType == "web3" {
-		endpoints = settings.Web3
 	} else {
 		return "", fmt.Errorf("Invalid endpoint type")
 	}
@@ -75,10 +71,6 @@ func MakePostRequest(endpointType string, url string, param []byte) (string, err
 	var endpoints []string
 	if endpointType == "rest" {
 		endpoints = settings.Rest
-	} else if endpointType == "jrpc" {
-		endpoints = settings.Jrpc
-	} else if endpointType == "web3" {
-		endpoints = settings.Web3
 	} else {
 		return "", fmt.Errorf("Invalid endpoint type")
 	}
