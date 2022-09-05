@@ -65,6 +65,11 @@ func Bech32StringToAddress(address string) (sdk.AccAddress, error) {
 	return sdk.AccAddressFromBech32(address)
 }
 
+func Bech32StringToValidatorAddress(address string) (sdk.ValAddress, error) {
+	sdk.GetConfig().SetBech32PrefixForValidator("evmosvaloper", "evmosvaloperpub")
+	return sdk.ValAddressFromBech32(address)
+}
+
 func CreateTransaction(sender Sender, message Message) ([]byte, error) {
 	sdk.GetConfig().SetBech32PrefixForAccount("evmos", "evmospub")
 

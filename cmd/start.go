@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/hanchon-live/autostake-bot/internal/blockchain"
+	"github.com/hanchon-live/autostake-bot/internal/database"
 	"github.com/hanchon-live/autostake-bot/internal/messages"
 	"github.com/hanchon-live/autostake-bot/internal/util"
 	"github.com/spf13/cobra"
@@ -24,16 +25,29 @@ It will query the balance for each granter and if it's greater than 0.1 Evmos,
 it will claim and restake the total amount`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Get the sender using the mnemonic in the .env file
-		sender, err := blockchain.GetSender(settings.Mnemonic)
+		sender, _ := blockchain.GetSender(settings.Mnemonic)
+
+		senderAddress, _ := blockchain.HexToBech32(sender.PrivKey.PubKey().Address().String())
+
+		granters, err := database.GetGrantersFromDb()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		grantersToMessage := []messages.ValueToClaim{}
+		for _, v := range granters {
+			grantersToMessage = append(grantersToMessage, messages.ValueToClaim{
+				Granter:   v.Address,
+				Validator: v.Validator,
+				Denom:     settings.FeeDenom,
+				// TODO: read amount from blockchain
+				Amount: 1,
+			})
+		}
 
 		// Create the proto message
-		msgSend, encoder, err := messages.CreateMessageSend(
-			"evmos10gu0eudskw7nc0ef48ce9x22sx3tft0s463el3",
-			"evmos1urc5gn9x4kvl3sxu4qd9vckfdmtet7shdskm55",
-			int64(42069),
-			settings.FeeDenom,
-		)
-
+		msg, encoder, err := messages.CreateMessageExec(senderAddress, grantersToMessage)
 		if err != nil {
 			fmt.Printf("Error creating message send: %q\n", err)
 			return
@@ -41,7 +55,7 @@ it will claim and restake the total amount`,
 
 		// Enconde new message
 		message := messages.NewMessage(
-			&msgSend,
+			&msg,
 			encoder,
 			settings.Fee,
 			settings.FeeDenom,
@@ -62,7 +76,6 @@ it will claim and restake the total amount`,
 		} else {
 			fmt.Printf("Transaction included in a block with hash %q\n", txHash)
 		}
-
 	},
 }
 
