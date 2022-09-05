@@ -30,7 +30,7 @@ var updateGrantersCmd = &cobra.Command{
 		defer db.Close()
 
 		// Get all the wallets
-		url := "/cosmos/authz/v1beta1/grants/grantee/" + "evmos10gu0eudskw7nc0ef48ce9x22sx3tft0s463el3"
+		url := "/cosmos/authz/v1beta1/grants/grantee/" + settings.GranteeWallet
 		if resp, err := requester.MakeGetRequest("rest", url); err != nil {
 			fmt.Println("Failed to get grants")
 			return
@@ -56,7 +56,7 @@ var updateGrantersCmd = &cobra.Command{
 			for _, grant := range m.Grants {
 				// Store it to the database
 				if grant.Authorization.Value == "/cosmos.staking.v1beta1.MsgDelegate" {
-					_, err = stmt.Exec("", grant.Granter, false, "evmosvaloper1dgpv4leszpeg2jusx2xgyfnhdzghf3rf0qq22v", 0)
+					_, err = stmt.Exec("", grant.Granter, false, settings.Validator, 0)
 					if err != nil && err.Error() == "UNIQUE constraint failed: delegators.address" {
 						fmt.Println("=", grant.Grantee, "already stored in db.")
 					} else if err != nil {

@@ -13,9 +13,8 @@ type Sender struct {
 	PrivKey       ethsecp256k1.PrivKey
 }
 
-func GetSender(mnemonic string) (Sender, error) {
-	// NOTE: it will use the first wallet, the path is hardcoded
-	priv, err := CreatePrivateKeyFromMnemonic(mnemonic)
+func GetSender(mnemonic string, path string) (Sender, error) {
+	priv, err := CreatePrivateKeyFromMnemonic(mnemonic, path)
 	if err != nil {
 		return Sender{}, fmt.Errorf("Error creating priv: %q", err)
 	}

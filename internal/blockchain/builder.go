@@ -33,8 +33,8 @@ func Int64ToCoins(value int64, denom string) sdk.Coins {
 	return sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(value)))
 }
 
-func CreatePrivateKeyFromMnemonic(mnemonic string) (ethsecp256k1.PrivKey, error) {
-	w, account, err := wallet.GetWalletFromMnemonic(mnemonic)
+func CreatePrivateKeyFromMnemonic(mnemonic string, path string) (ethsecp256k1.PrivKey, error) {
+	w, account, err := wallet.GetWalletFromMnemonic(mnemonic, path)
 	if err != nil {
 		return ethsecp256k1.PrivKey{}, err
 	}
@@ -63,6 +63,11 @@ func HexToBech32(address string) (string, error) {
 func Bech32StringToAddress(address string) (sdk.AccAddress, error) {
 	sdk.GetConfig().SetBech32PrefixForAccount("evmos", "evmospub")
 	return sdk.AccAddressFromBech32(address)
+}
+
+func Bech32StringToValidatorAddress(address string) (sdk.ValAddress, error) {
+	sdk.GetConfig().SetBech32PrefixForValidator("evmosvaloper", "evmosvaloperpub")
+	return sdk.ValAddressFromBech32(address)
 }
 
 func CreateTransaction(sender Sender, message Message) ([]byte, error) {
@@ -129,10 +134,6 @@ func CreateTransaction(sender Sender, message Message) ([]byte, error) {
 		Sequence: sender.Sequence,
 	}
 	txBuilder.SetSignatures(sig)
-
-	// TODO: remove this
-	a, _ := clientCtx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
-	fmt.Println(string(a))
 
 	txBz, err := clientCtx.TxConfig.TxEncoder()(txBuilder.GetTx())
 	if err != nil {

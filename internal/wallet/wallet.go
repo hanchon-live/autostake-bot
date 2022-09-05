@@ -18,14 +18,14 @@ func init() {
 	settings = config
 }
 
-func GetWalletFromMnemonic(mnemonic string) (hdwallet.Wallet, accounts.Account, error) {
+func GetWalletFromMnemonic(mnemonic string, path string) (hdwallet.Wallet, accounts.Account, error) {
 	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
 	if err != nil {
 		return hdwallet.Wallet{}, accounts.Account{}, err
 	}
 
-	path := hdwallet.MustParseDerivationPath("m/44'/60'/0'/0/0")
-	account, err := wallet.Derive(path, false)
+	pathGenerated := hdwallet.MustParseDerivationPath(path)
+	account, err := wallet.Derive(pathGenerated, false)
 	if err != nil {
 		return hdwallet.Wallet{}, accounts.Account{}, err
 	}
@@ -34,5 +34,5 @@ func GetWalletFromMnemonic(mnemonic string) (hdwallet.Wallet, accounts.Account, 
 }
 
 func GetWallet() (hdwallet.Wallet, accounts.Account, error) {
-	return GetWalletFromMnemonic(settings.Mnemonic)
+	return GetWalletFromMnemonic(settings.Mnemonic, settings.DerivationPath)
 }
