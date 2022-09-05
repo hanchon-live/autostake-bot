@@ -13,6 +13,7 @@ type Config struct {
 	Memo           string   `mapstructure:"memo"`
 	Validator      string   `mapstructure:"validator"`
 	GranteeWallet  string   `mapstructure:"granteewallet"`
+	MinReward      int64    `mapstructure:"minreward"`
 }
 
 var defaultConfig = Config{
@@ -26,6 +27,7 @@ var defaultConfig = Config{
 	Memo:           "Hanchon restake",
 	Validator:      "evmosvaloper1nm5uh2q85h9vylzs6uuvje4cscz4dcew8cawss",
 	GranteeWallet:  "evmos10gu0eudskw7nc0ef48ce9x22sx3tft0s463el3",
+	MinReward:      int64(100000000),
 }
 
 func LoadConfig() (config Config, err error) {

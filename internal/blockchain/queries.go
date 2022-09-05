@@ -23,6 +23,20 @@ func GetAccountFromBlockchain(address string) (responses.AuthAddressResponse, er
 	}
 }
 
+func GetDistributionRewards(address string) (responses.RewardsResponse, error) {
+	url := "/cosmos/distribution/v1beta1/delegators/" + address + "/rewards"
+	if resp, err := requester.MakeGetRequest("rest", url); err != nil {
+		return responses.RewardsResponse{}, fmt.Errorf("Failed to get the rewards: %q\n", err)
+	} else {
+		m := &responses.RewardsResponse{}
+		err = json.Unmarshal([]byte(resp), m)
+		if err != nil {
+			return responses.RewardsResponse{}, fmt.Errorf("Error decoding rewards response: %q", err)
+		}
+		return *m, nil
+	}
+}
+
 func Broadcast(tx []byte) (string, error) {
 	body := `{"tx_bytes":` + ByteArrayToStringArray(tx) + `,"mode":"BROADCAST_MODE_BLOCK"}`
 	val, err := requester.MakePostRequest("rest", "/cosmos/tx/v1beta1/txs", []byte(body))

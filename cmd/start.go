@@ -6,6 +6,8 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/hanchon-live/autostake-bot/internal/blockchain"
 	"github.com/hanchon-live/autostake-bot/internal/database"
@@ -37,13 +39,46 @@ it will claim and restake the total amount`,
 
 		grantersToMessage := []messages.ValueToClaim{}
 		for _, v := range granters {
+			res, err := blockchain.GetDistributionRewards(v.Address)
+			if err != nil {
+				fmt.Printf("Error getting rewards from %s, %q", v.Address, err)
+				continue
+			}
+
+			total := int64(0)
+			for _, t := range res.Total {
+				if t.Denom == settings.FeeDenom {
+					amountToParse := t.Amount
+					amount := strings.Split(t.Amount, ".")
+					if len(amount) == 2 {
+						amountToParse = amount[0]
+					}
+					val, err := strconv.ParseInt(amountToParse, 10, 64)
+					if err != nil {
+						fmt.Printf("Error parsing rewards from %s, %q\n", v.Address, err)
+						continue
+					}
+					total = total + val
+				}
+			}
+
+			if total < settings.MinReward {
+				fmt.Printf("NOT enough rewards (%d%s) to claim and restake from %s\n", total, settings.FeeDenom, v.Address)
+				continue
+			}
+
 			grantersToMessage = append(grantersToMessage, messages.ValueToClaim{
 				Granter:   v.Address,
 				Validator: v.Validator,
 				Denom:     settings.FeeDenom,
-				// TODO: read amount from blockchain
-				Amount: 1,
+				Amount:    total,
 			})
+			fmt.Printf("Claiming and restaking %d%s from %s\n", total, settings.FeeDenom, v.Address)
+		}
+
+		if len(grantersToMessage) == 0 {
+			fmt.Println("Not sending transactions, the granters array is empty!")
+			return
 		}
 
 		// Create the proto message
