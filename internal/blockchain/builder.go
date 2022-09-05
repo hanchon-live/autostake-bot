@@ -33,8 +33,8 @@ func Int64ToCoins(value int64, denom string) sdk.Coins {
 	return sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(value)))
 }
 
-func CreatePrivateKeyFromMnemonic(mnemonic string) (ethsecp256k1.PrivKey, error) {
-	w, account, err := wallet.GetWalletFromMnemonic(mnemonic)
+func CreatePrivateKeyFromMnemonic(mnemonic string, path string) (ethsecp256k1.PrivKey, error) {
+	w, account, err := wallet.GetWalletFromMnemonic(mnemonic, path)
 	if err != nil {
 		return ethsecp256k1.PrivKey{}, err
 	}

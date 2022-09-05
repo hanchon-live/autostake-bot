@@ -25,10 +25,16 @@ go build
 
 ## Grant permission using the evmosd cli
 
-Localnet example: replace denom, chain id and node for mainnet/testnet
+Localnet example:
 
 ```sh
 evmosd tx authz grant evmos10gu0eudskw7nc0ef48ce9x22sx3tft0s463el3 generic --msg-type /cosmos.staking.v1beta1.MsgDelegate --chain-id evmos_9000-1 --node http://localhost:26657 --from mykey --keyring-backend test --gas auto --gas-prices 25000000000.0000aevmos --gas-adjustment 1.5
+```
+
+Testnet example:
+
+```sh
+evmosd tx authz grant evmos1h2n8tfp9z75xvck580ny3gv7hn74fe2vqtxpd0 generic --msg-type /cosmos.staking.v1beta1.MsgDelegate --chain-id evmos_9000-4 --node https://tendermint.bd.evmos.dev:26657/ --from testnet --keyring-backend file --fees 2000000000000atevmos -b block
 ```
 
 ## TODO:

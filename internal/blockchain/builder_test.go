@@ -11,7 +11,7 @@ import (
 )
 
 func TestCreateTransaction(t *testing.T) {
-	priv, err := CreatePrivateKeyFromMnemonic("flash local taste power maple fragile pool name file position drop swarm")
+	priv, err := CreatePrivateKeyFromMnemonic("flash local taste power maple fragile pool name file position drop swarm", "m/44'/60'/0'/0/1")
 	if err != nil {
 		t.Fatalf("Error creating priv: %q", err)
 	}
