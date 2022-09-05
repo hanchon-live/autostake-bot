@@ -14,7 +14,6 @@ type Sender struct {
 }
 
 func GetSender(mnemonic string, path string) (Sender, error) {
-	// NOTE: it will use the first wallet, the path is hardcoded
 	priv, err := CreatePrivateKeyFromMnemonic(mnemonic, path)
 	if err != nil {
 		return Sender{}, fmt.Errorf("Error creating priv: %q", err)
