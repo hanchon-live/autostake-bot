@@ -27,9 +27,17 @@ It will query the balance for each granter and if it's greater than 0.1 Evmos,
 it will claim and restake the total amount`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Get the sender using the mnemonic in the .env file
-		sender, _ := blockchain.GetSender(settings.Mnemonic, settings.DerivationPath)
+		sender, err := blockchain.GetSender(settings.Mnemonic, settings.DerivationPath)
+		if err != nil {
+			fmt.Printf("Error getting the sender %q\n", err)
+			return
+		}
 
-		senderAddress, _ := blockchain.HexToBech32(sender.PrivKey.PubKey().Address().String())
+		senderAddress, err := blockchain.HexToBech32(sender.PrivKey.PubKey().Address().String())
+		if err != nil {
+			fmt.Printf("Error converting the sender address %q\n", err)
+			return
+		}
 
 		granters, err := database.GetGrantersFromDb()
 		if err != nil {

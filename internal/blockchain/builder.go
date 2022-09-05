@@ -135,10 +135,6 @@ func CreateTransaction(sender Sender, message Message) ([]byte, error) {
 	}
 	txBuilder.SetSignatures(sig)
 
-	// TODO: remove this
-	a, _ := clientCtx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
-	fmt.Println(string(a))
-
 	txBz, err := clientCtx.TxConfig.TxEncoder()(txBuilder.GetTx())
 	if err != nil {
 		return []byte{}, err
