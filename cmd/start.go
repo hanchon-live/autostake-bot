@@ -47,41 +47,83 @@ it will claim and restake the total amount`,
 
 		grantersToMessage := []messages.ValueToClaim{}
 		for _, v := range granters {
-			res, err := blockchain.GetDistributionRewards(v.Address)
-			if err != nil {
-				fmt.Printf("Error getting rewards from %s, %q", v.Address, err)
-				continue
-			}
-
-			total := int64(0)
-			for _, t := range res.Total {
-				if t.Denom == settings.FeeDenom {
-					amountToParse := t.Amount
-					amount := strings.Split(t.Amount, ".")
-					if len(amount) == 2 {
-						amountToParse = amount[0]
-					}
-					val, err := strconv.ParseInt(amountToParse, 10, 64)
-					if err != nil {
-						fmt.Printf("Error parsing rewards from %s, %q\n", v.Address, err)
-						continue
-					}
-					total = total + val
+			if v.IsValidator == true {
+				// Commissions
+				res, err := blockchain.GetCommission(v.Validator)
+				if err != nil {
+					fmt.Printf("Error getting the commission for validator %s, %q\n", v.Validator, err)
+					continue
 				}
-			}
 
-			if total < settings.MinReward {
-				fmt.Printf("NOT enough rewards (%d%s) to claim and restake from %s\n", total, settings.FeeDenom, v.Address)
-				continue
-			}
+				total := int64(0)
+				for _, t := range res.Commission.Commission {
+					if t.Denom == settings.FeeDenom {
+						amountToParse := t.Amount
+						amount := strings.Split(t.Amount, ".")
+						if len(amount) == 2 {
+							amountToParse = amount[0]
+						}
+						val, err := strconv.ParseInt(amountToParse, 10, 64)
+						if err != nil {
+							fmt.Printf("Error parsing commission from %s, %q\n", v.Validator, err)
+							continue
+						}
+						total = total + val
+					}
+				}
 
-			grantersToMessage = append(grantersToMessage, messages.ValueToClaim{
-				Granter:   v.Address,
-				Validator: v.Validator,
-				Denom:     settings.FeeDenom,
-				Amount:    total,
-			})
-			fmt.Printf("Claiming and restaking %d%s from %s\n", total, settings.FeeDenom, v.Address)
+				if total < settings.MinReward {
+					fmt.Printf("NOT enough commission (%d%s) to claim from %s\n", total, settings.FeeDenom, v.Validator)
+					continue
+				}
+				grantersToMessage = append(grantersToMessage, messages.ValueToClaim{
+					Granter:     v.Address,
+					Validator:   v.Validator,
+					Denom:       settings.FeeDenom,
+					Amount:      0,
+					IsValidator: v.IsValidator,
+				})
+				fmt.Printf("Claiming commission for %s\n", v.Address)
+			} else {
+				// Delegations
+				res, err := blockchain.GetDistributionRewards(v.Address)
+				if err != nil {
+					fmt.Printf("Error getting rewards from %s, %q", v.Address, err)
+					continue
+				}
+
+				total := int64(0)
+				for _, t := range res.Total {
+					if t.Denom == settings.FeeDenom {
+						amountToParse := t.Amount
+						amount := strings.Split(t.Amount, ".")
+						if len(amount) == 2 {
+							amountToParse = amount[0]
+						}
+						val, err := strconv.ParseInt(amountToParse, 10, 64)
+						if err != nil {
+							fmt.Printf("Error parsing rewards from %s, %q\n", v.Address, err)
+							continue
+						}
+						total = total + val
+					}
+				}
+
+				if total < settings.MinReward {
+					fmt.Printf("NOT enough rewards (%d%s) to claim and restake from %s\n", total, settings.FeeDenom, v.Address)
+					continue
+				}
+
+				grantersToMessage = append(grantersToMessage, messages.ValueToClaim{
+					Granter:     v.Address,
+					Validator:   v.Validator,
+					Denom:       settings.FeeDenom,
+					Amount:      total,
+					IsValidator: v.IsValidator,
+				})
+
+				fmt.Printf("Claiming and restaking %d%s from %s\n", total, settings.FeeDenom, v.Address)
+			}
 		}
 
 		if len(grantersToMessage) == 0 {
