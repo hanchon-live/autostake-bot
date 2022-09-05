@@ -16,6 +16,18 @@ Other options:
 
 Copy the `.env.example` file to `./env` and replace the values with your settings
 
+- rest: endpoint used to connect to the Evmos chain
+- mnemonic: your wallet mnemonic (the bot wallet)
+- derivationpath: derivation path used by the bot wallet
+- granteewallet: bot wallet in bech32 evmos format (evmos1...)
+- fee: amount to pay for each transaction
+- feedenom: denom for the fee
+- gaslimit: max gas to be used by the transaction
+- memo: transaction memo
+- chainid: chain id in cosmos format
+- validator: validator account where the rewards will be restaked (evmosvaloper1...)
+- minreward: min coin amount needed to be included in the transaction, (i.e, claim if the user has more 3000000000aevmos as rewards)
+
 ## Run
 
 ```sh
@@ -43,4 +55,3 @@ evmosd tx authz grant evmos1h2n8tfp9z75xvck580ny3gv7hn74fe2vqtxpd0 generic --msg
 - More tests, right now the only thing tested is the transaction generator
 - Allow more than 21 granters
 - Validate if the grant is limited to a validator or by amount
-- Allow to delegate to another validator that is not Hanchon.live
