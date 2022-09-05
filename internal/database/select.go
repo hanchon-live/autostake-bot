@@ -8,8 +8,9 @@ import (
 )
 
 type GranterFromDb struct {
-	Address   string
-	Validator string
+	Address     string
+	Validator   string
+	IsValidator bool
 }
 
 func GetGrantersFromDb() ([]GranterFromDb, error) {
@@ -21,7 +22,7 @@ func GetGrantersFromDb() ([]GranterFromDb, error) {
 
 	defer db.Close()
 
-	rows, err := db.Query("select id, address, validator from delegators")
+	rows, err := db.Query("select id, address, validator, isvalidator from delegators")
 
 	if err != nil {
 		return []GranterFromDb{}, fmt.Errorf("Error creating the query to the database: %q", err)
@@ -34,11 +35,12 @@ func GetGrantersFromDb() ([]GranterFromDb, error) {
 		var id int
 		var address string
 		var validator string
-		err = rows.Scan(&id, &address, &validator)
+		var isValidator bool
+		err = rows.Scan(&id, &address, &validator, &isValidator)
 		if err != nil {
 			fmt.Printf("Error getting the row information: %q", err)
 		}
-		res = append(res, GranterFromDb{Address: address, Validator: validator})
+		res = append(res, GranterFromDb{Address: address, Validator: validator, IsValidator: isValidator})
 	}
 	err = rows.Err()
 
