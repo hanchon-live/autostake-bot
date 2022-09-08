@@ -6,9 +6,9 @@ package cmd
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/hanchon-live/autostake-bot/internal/blockchain"
 	"github.com/hanchon-live/autostake-bot/internal/database"
 	"github.com/hanchon-live/autostake-bot/internal/messages"
@@ -55,7 +55,7 @@ it will claim and restake the total amount`,
 					continue
 				}
 
-				total := uint64(0)
+				total := sdkmath.NewIntFromUint64(0)
 				for _, t := range res.Commission.Commission {
 					if t.Denom == settings.FeeDenom {
 						amountToParse := t.Amount
@@ -63,16 +63,16 @@ it will claim and restake the total amount`,
 						if len(amount) == 2 {
 							amountToParse = amount[0]
 						}
-						val, err := strconv.ParseUint(amountToParse, 10, 64)
-						if err != nil {
+						val, ok := sdkmath.NewIntFromString(amountToParse)
+						if ok != true {
 							fmt.Printf("Error parsing commission from %s, %q\n", v.Validator, err)
 							continue
 						}
-						total = total + val
+						total = total.Add(val)
 					}
 				}
 
-				if total < settings.MinReward {
+				if total.LT(sdkmath.NewIntFromUint64(settings.MinReward)) {
 					fmt.Printf("NOT enough commission (%d%s) to claim from %s\n", total, settings.FeeDenom, v.Validator)
 					continue
 				}
@@ -80,7 +80,7 @@ it will claim and restake the total amount`,
 					Granter:     v.Address,
 					Validator:   v.Validator,
 					Denom:       settings.FeeDenom,
-					Amount:      0,
+					Amount:      sdkmath.NewIntFromUint64(0),
 					IsValidator: v.IsValidator,
 				})
 				fmt.Printf("Claiming commission for %s\n", v.Address)
@@ -92,7 +92,7 @@ it will claim and restake the total amount`,
 					continue
 				}
 
-				total := uint64(0)
+				total := sdkmath.NewIntFromUint64(0)
 				for _, t := range res.Total {
 					if t.Denom == settings.FeeDenom {
 						amountToParse := t.Amount
@@ -100,16 +100,17 @@ it will claim and restake the total amount`,
 						if len(amount) == 2 {
 							amountToParse = amount[0]
 						}
-						val, err := strconv.ParseUint(amountToParse, 10, 64)
-						if err != nil {
+
+						val, ok := sdkmath.NewIntFromString(amountToParse)
+						if ok != true {
 							fmt.Printf("Error parsing rewards from %s, %q\n", v.Address, err)
 							continue
 						}
-						total = total + val
+						total = total.Add(val)
 					}
 				}
 
-				if total < settings.MinReward {
+				if total.LT(sdkmath.NewIntFromUint64(settings.MinReward)) {
 					fmt.Printf("NOT enough rewards (%d%s) to claim and restake from %s\n", total, settings.FeeDenom, v.Address)
 					continue
 				}
