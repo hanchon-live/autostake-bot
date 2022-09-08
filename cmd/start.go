@@ -96,7 +96,7 @@ it will claim and restake the total amount`,
 				total := sdkmath.NewIntFromUint64(0)
 				for _, r := range res.Rewards {
 					if r.ValidatorAddress == v.Validator {
-						for _, t := range res.Total {
+						for _, t := range r.Reward {
 							if t.Denom == settings.FeeDenom {
 								amountToParse := t.Amount
 								amount := strings.Split(t.Amount, ".")
