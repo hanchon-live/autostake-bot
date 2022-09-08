@@ -50,6 +50,7 @@ func GetCommission(address string) (responses.CommissionResponse, error) {
 		return *m, nil
 	}
 }
+
 func Broadcast(tx []byte) (string, error) {
 	body := `{"tx_bytes":` + ByteArrayToStringArray(tx) + `,"mode":"BROADCAST_MODE_BLOCK"}`
 	val, err := requester.MakePostRequest("rest", "/cosmos/tx/v1beta1/txs", []byte(body))

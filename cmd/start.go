@@ -49,6 +49,7 @@ it will claim and restake the total amount`,
 		for _, v := range granters {
 			if v.IsValidator == true {
 				// Commissions
+				// TODO: check if it's needed to send the GetCommission message or if it's autoclaimend when restaking
 				res, err := blockchain.GetCommission(v.Validator)
 				if err != nil {
 					fmt.Printf("Error getting the commission for validator %s, %q\n", v.Validator, err)
@@ -93,20 +94,23 @@ it will claim and restake the total amount`,
 				}
 
 				total := sdkmath.NewIntFromUint64(0)
-				for _, t := range res.Total {
-					if t.Denom == settings.FeeDenom {
-						amountToParse := t.Amount
-						amount := strings.Split(t.Amount, ".")
-						if len(amount) == 2 {
-							amountToParse = amount[0]
+				for _, r := range res.Rewards {
+					if r.ValidatorAddress == v.Validator {
+						for _, t := range r.Reward {
+							if t.Denom == settings.FeeDenom {
+								amountToParse := t.Amount
+								amount := strings.Split(t.Amount, ".")
+								if len(amount) == 2 {
+									amountToParse = amount[0]
+								}
+								val, ok := sdkmath.NewIntFromString(amountToParse)
+								if ok != true {
+									fmt.Printf("Error parsing rewards from %s, %q\n", v.Address, err)
+									continue
+								}
+								total = total.Add(val)
+							}
 						}
-
-						val, ok := sdkmath.NewIntFromString(amountToParse)
-						if ok != true {
-							fmt.Printf("Error parsing rewards from %s, %q\n", v.Address, err)
-							continue
-						}
-						total = total.Add(val)
 					}
 				}
 
