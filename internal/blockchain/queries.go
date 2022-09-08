@@ -66,5 +66,9 @@ func Broadcast(tx []byte) (string, error) {
 	if m.Response.Code == 0 {
 		return m.Response.TxHash, nil
 	}
+
+	fmt.Println("Error sending transaction: log...")
+	fmt.Println(m)
+
 	return "", fmt.Errorf("Error sending the transaction error code: %d", m.Response.Code)
 }

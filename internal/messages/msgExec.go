@@ -15,7 +15,7 @@ import (
 
 type ValueToClaim struct {
 	Granter     string
-	Amount      int64
+	Amount      sdk.Int
 	Denom       string
 	Validator   string
 	IsValidator bool
@@ -41,7 +41,7 @@ func CreateMessageExec(grantee string, clameable []ValueToClaim) (authz.MsgExec,
 				messages = append(messages, msg)
 			} else {
 				// Claim delegators rewards
-				msg := staking.NewMsgDelegate(granter, validator, sdk.NewCoin(toClaim.Denom, sdk.NewInt(toClaim.Amount)))
+				msg := staking.NewMsgDelegate(granter, validator, sdk.NewCoin(toClaim.Denom, toClaim.Amount))
 				messages = append(messages, msg)
 			}
 		}
