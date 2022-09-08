@@ -55,7 +55,7 @@ it will claim and restake the total amount`,
 					continue
 				}
 
-				total := int64(0)
+				total := uint64(0)
 				for _, t := range res.Commission.Commission {
 					if t.Denom == settings.FeeDenom {
 						amountToParse := t.Amount
@@ -63,7 +63,7 @@ it will claim and restake the total amount`,
 						if len(amount) == 2 {
 							amountToParse = amount[0]
 						}
-						val, err := strconv.ParseInt(amountToParse, 10, 64)
+						val, err := strconv.ParseUint(amountToParse, 10, 64)
 						if err != nil {
 							fmt.Printf("Error parsing commission from %s, %q\n", v.Validator, err)
 							continue
@@ -92,7 +92,7 @@ it will claim and restake the total amount`,
 					continue
 				}
 
-				total := int64(0)
+				total := uint64(0)
 				for _, t := range res.Total {
 					if t.Denom == settings.FeeDenom {
 						amountToParse := t.Amount
@@ -100,7 +100,7 @@ it will claim and restake the total amount`,
 						if len(amount) == 2 {
 							amountToParse = amount[0]
 						}
-						val, err := strconv.ParseInt(amountToParse, 10, 64)
+						val, err := strconv.ParseUint(amountToParse, 10, 64)
 						if err != nil {
 							fmt.Printf("Error parsing rewards from %s, %q\n", v.Address, err)
 							continue
