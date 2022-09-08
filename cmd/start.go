@@ -111,7 +111,7 @@ it will claim and restake the total amount`,
 				}
 
 				if total.LT(sdkmath.NewIntFromUint64(settings.MinReward)) {
-					fmt.Printf("NOT enough rewards (%d%s) to claim and restake from %s\n", total, settings.FeeDenom, v.Address)
+					fmt.Printf("NOT enough rewards (%s%s) to claim and restake from %s\n", total.String(), settings.FeeDenom, v.Address)
 					continue
 				}
 
@@ -123,7 +123,7 @@ it will claim and restake the total amount`,
 					IsValidator: v.IsValidator,
 				})
 
-				fmt.Printf("Claiming and restaking %d%s from %s\n", total, settings.FeeDenom, v.Address)
+				fmt.Printf("Claiming and restaking %s%s from %s\n", total.String(), settings.FeeDenom, v.Address)
 			}
 		}
 
