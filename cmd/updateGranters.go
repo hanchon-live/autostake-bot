@@ -56,24 +56,24 @@ var updateGrantersCmd = &cobra.Command{
 			for _, grant := range m.Grants {
 				// Store it to the database
 				if grant.Authorization.Value == "/cosmos.staking.v1beta1.MsgDelegate" {
-					_, err = stmt.Exec("delegate"+grant.Grantee, grant.Granter, false, settings.Validator, 0)
+					_, err = stmt.Exec("delegate"+grant.Granter, grant.Granter, false, settings.Validator, 0)
 					if err != nil && err.Error() == "UNIQUE constraint failed: delegators.name" {
-						fmt.Println("=", grant.Grantee, "already stored in db. [Delegator]")
+						fmt.Println("=", grant.Granter, "already stored in db. [Delegator]")
 					} else if err != nil {
 						fmt.Printf("Error executing transaction: %q", err)
 					} else {
-						fmt.Println("+", grant.Grantee, "stored in db. [Delegator]")
+						fmt.Println("+", grant.Granter, "stored in db. [Delegator]")
 					}
 				}
 
 				if grant.Authorization.Value == "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission" {
-					_, err = stmt.Exec("validator"+grant.Grantee, grant.Granter, true, settings.Validator, 0)
+					_, err = stmt.Exec("validator"+grant.Granter, grant.Granter, true, settings.Validator, 0)
 					if err != nil && err.Error() == "UNIQUE constraint failed: delegators.address" {
-						fmt.Println("=", grant.Grantee, "already stored in db. [Validator]")
+						fmt.Println("=", grant.Granter, "already stored in db. [Validator]")
 					} else if err != nil {
 						fmt.Printf("Error executing transaction: %q", err)
 					} else {
-						fmt.Println("+", grant.Grantee, "stored in db. [Validator]")
+						fmt.Println("+", grant.Granter, "stored in db. [Validator]")
 					}
 				}
 			}
