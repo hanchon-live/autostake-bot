@@ -88,13 +88,19 @@ var updateGrantersCmd = &cobra.Command{
 				}
 
 				if grant.Authorization.Value == "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission" {
-					_, err = stmt.Exec("validator"+grant.Granter+settings.Validator, grant.Granter, true, settings.Validator, 0)
-					if err != nil && err.Error() == "UNIQUE constraint failed: delegators.address" {
+					res, err := blockchain.GetValidator(grant.Granter)
+					if err != nil {
+						fmt.Printf("Error getting the validator for %s, %q", grant.Granter, err)
+						continue
+					}
+
+					_, err = stmt.Exec("validator"+grant.Granter+res, grant.Granter, true, res, 0)
+					if err != nil && err.Error() == "UNIQUE constraint failed: delegators.name" {
 						fmt.Println("=", grant.Granter, "already stored in db. [Validator]")
 					} else if err != nil {
 						fmt.Printf("Error executing transaction: %q", err)
 					} else {
-						fmt.Println("+", grant.Granter, "stored in db. [Validator]")
+						fmt.Println("+", grant.Granter, "stored in db("+res+"). [Delegator]")
 					}
 				}
 			}

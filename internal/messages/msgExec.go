@@ -22,6 +22,32 @@ type ValueToClaim struct {
 }
 
 func CreateMessageExec(grantee string, clameable []ValueToClaim) (authz.MsgExec, codec.ProtoCodec, error) {
+	fmt.Println("before")
+	for _, toClaim := range clameable {
+		fmt.Println(toClaim.Granter, toClaim.Amount, toClaim.IsValidator, toClaim.Validator)
+	}
+	// Remove all the validators from the list and add the total to the claim message
+	fixedData := []ValueToClaim{}
+	for _, toClaim := range clameable {
+		if toClaim.IsValidator == true {
+			for i, toFix := range clameable {
+				if toFix.IsValidator == false && toFix.Granter == toClaim.Granter {
+					clameable[i].Amount = toFix.Amount.Add(toClaim.Amount)
+				}
+			}
+		}
+	}
+
+	for _, toClaim := range clameable {
+		if toClaim.IsValidator == false {
+			fixedData = append(fixedData, toClaim)
+		}
+	}
+	fmt.Println("after")
+	for _, toClaim := range fixedData {
+		fmt.Println(toClaim.Granter, toClaim.Amount, toClaim.IsValidator, toClaim.Validator)
+	}
+
 	// Create the sender account
 	granteeAccount, err := blockchain.Bech32StringToAddress(grantee)
 	if err != nil {
@@ -29,7 +55,7 @@ func CreateMessageExec(grantee string, clameable []ValueToClaim) (authz.MsgExec,
 	}
 
 	var messages []sdk.Msg
-	for _, toClaim := range clameable {
+	for _, toClaim := range fixedData {
 		// Create the validator account
 		validator, errValidator := blockchain.Bech32StringToValidatorAddress(toClaim.Validator)
 		granter, errGranter := blockchain.Bech32StringToAddress(toClaim.Granter)

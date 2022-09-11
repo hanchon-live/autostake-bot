@@ -51,6 +51,14 @@ func GetCommission(address string) (responses.CommissionResponse, error) {
 	}
 }
 
+func GetValidator(address string) (string, error) {
+	if address == "evmos1dgpv4leszpeg2jusx2xgyfnhdzghf3rfzw06t3" {
+		return "evmosvaloper1dgpv4leszpeg2jusx2xgyfnhdzghf3rf0qq22v", nil
+	} else if address == "evmos197ahcv2x9jj0nmvnen4sqqfffhygjga7wc7qkp" {
+		return "evmosvaloper197ahcv2x9jj0nmvnen4sqqfffhygjga7rk3shu", nil
+	}
+	return "", fmt.Errorf("Validator address not registered")
+}
 func Broadcast(tx []byte) (string, error) {
 	body := `{"tx_bytes":` + ByteArrayToStringArray(tx) + `,"mode":"BROADCAST_MODE_BLOCK"}`
 	val, err := requester.MakePostRequest("rest", "/cosmos/tx/v1beta1/txs", []byte(body))
