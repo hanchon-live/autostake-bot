@@ -81,7 +81,7 @@ it will claim and restake the total amount`,
 					Granter:     v.Address,
 					Validator:   v.Validator,
 					Denom:       settings.FeeDenom,
-					Amount:      sdkmath.NewIntFromUint64(0),
+					Amount:      total,
 					IsValidator: v.IsValidator,
 				})
 				fmt.Printf("Claiming commission for %s\n", v.Address)
