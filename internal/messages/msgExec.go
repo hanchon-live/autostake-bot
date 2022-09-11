@@ -22,11 +22,8 @@ type ValueToClaim struct {
 }
 
 func CreateMessageExec(grantee string, clameable []ValueToClaim) (authz.MsgExec, codec.ProtoCodec, error) {
-	fmt.Println("before")
-	for _, toClaim := range clameable {
-		fmt.Println(toClaim.Granter, toClaim.Amount, toClaim.IsValidator, toClaim.Validator)
-	}
 	// Remove all the validators from the list and add the total to the claim message
+	// TODO: improve this instead of using 100000000 for loops
 	fixedData := []ValueToClaim{}
 	for _, toClaim := range clameable {
 		if toClaim.IsValidator == true {
@@ -43,10 +40,6 @@ func CreateMessageExec(grantee string, clameable []ValueToClaim) (authz.MsgExec,
 			fixedData = append(fixedData, toClaim)
 		}
 	}
-	fmt.Println("after")
-	for _, toClaim := range fixedData {
-		fmt.Println(toClaim.Granter, toClaim.Amount, toClaim.IsValidator, toClaim.Validator)
-	}
 
 	// Create the sender account
 	granteeAccount, err := blockchain.Bech32StringToAddress(grantee)
@@ -61,15 +54,9 @@ func CreateMessageExec(grantee string, clameable []ValueToClaim) (authz.MsgExec,
 		granter, errGranter := blockchain.Bech32StringToAddress(toClaim.Granter)
 
 		if errGranter == nil && errValidator == nil {
-			if toClaim.IsValidator == true {
-				// Claim the validator rewards
-				msg := distribution.NewMsgWithdrawValidatorCommission(validator)
-				messages = append(messages, msg)
-			} else {
-				// Claim delegators rewards
-				msg := staking.NewMsgDelegate(granter, validator, sdk.NewCoin(toClaim.Denom, toClaim.Amount))
-				messages = append(messages, msg)
-			}
+			// Claim delegators rewards
+			msg := staking.NewMsgDelegate(granter, validator, sdk.NewCoin(toClaim.Denom, toClaim.Amount))
+			messages = append(messages, msg)
 		}
 
 		if len(messages) > 20 {

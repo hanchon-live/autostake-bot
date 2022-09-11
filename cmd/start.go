@@ -159,15 +159,13 @@ it will claim and restake the total amount`,
 			fmt.Printf("Error creating transaction: %q\n", err)
 		}
 
-		fmt.Println(tx)
-
 		// Broadcast the transaction
-		// txHash, err := blockchain.Broadcast(tx)
-		// if err != nil {
-		// 	fmt.Printf("Error broadcasting... %q\n", err)
-		// } else {
-		// 	fmt.Printf("Transaction included in a block with hash %q\n", txHash)
-		// }
+		txHash, err := blockchain.Broadcast(tx)
+		if err != nil {
+			fmt.Printf("Error broadcasting... %q\n", err)
+		} else {
+			fmt.Printf("Transaction included in a block with hash %q\n", txHash)
+		}
 	},
 }
 
