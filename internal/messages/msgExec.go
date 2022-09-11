@@ -22,6 +22,27 @@ type ValueToClaim struct {
 }
 
 func CreateMessageExec(grantee string, clameable []ValueToClaim) (authz.MsgExec, codec.ProtoCodec, error) {
+	// Claim all the comission first and add the amount to the restake message
+	// TODO: improve this
+	fixedData := []ValueToClaim{}
+	for _, toClaim := range clameable {
+		if toClaim.IsValidator == true {
+			for i, toFix := range clameable {
+				if toFix.IsValidator == false && toFix.Granter == toClaim.Granter && toFix.Validator == toClaim.Validator {
+					clameable[i].Amount = toFix.Amount.Add(toClaim.Amount)
+				}
+			}
+		}
+	}
+
+	for _, toClaim := range clameable {
+		if toClaim.IsValidator == true {
+			fixedData = append(fixedData, toClaim)
+		} else {
+			fixedData = append([]ValueToClaim{toClaim}, fixedData...)
+		}
+	}
+
 	// Create the sender account
 	granteeAccount, err := blockchain.Bech32StringToAddress(grantee)
 	if err != nil {
@@ -29,7 +50,7 @@ func CreateMessageExec(grantee string, clameable []ValueToClaim) (authz.MsgExec,
 	}
 
 	var messages []sdk.Msg
-	for _, toClaim := range clameable {
+	for _, toClaim := range fixedData {
 		// Create the validator account
 		validator, errValidator := blockchain.Bech32StringToValidatorAddress(toClaim.Validator)
 		granter, errGranter := blockchain.Bech32StringToAddress(toClaim.Granter)

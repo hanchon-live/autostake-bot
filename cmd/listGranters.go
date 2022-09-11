@@ -22,7 +22,7 @@ var listGrantersCmd = &cobra.Command{
 		}
 
 		for k, v := range granters {
-			fmt.Printf("- %d: Granter->%s. Validator->%s \n", k, v.Address, v.Validator)
+			fmt.Printf("- %d: Granter->%s. Validator->%s. IsValidator->%t \n", k, v.Address, v.Validator, v.IsValidator)
 		}
 	},
 }
