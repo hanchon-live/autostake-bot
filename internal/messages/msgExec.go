@@ -57,7 +57,7 @@ func CreateMessageExec(grantee string, clameable []ValueToClaim) (authz.MsgExec,
 
 	// Execute the claim commission first and then the rewards
 	for _, toClaim := range clameable {
-		if toClaim.IsValidator == true {
+		if toClaim.IsValidator == false {
 			fixedData = append(fixedData, toClaim)
 		} else {
 			fixedData = append([]ValueToClaim{toClaim}, fixedData...)
